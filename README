@@ -1,0 +1,46 @@
+ 
+Static-Server V1.0.0.1
+
+功能列表：
+
+	1，新增文件
+	2，删除文件
+	3，读取文件元数据和原始字节
+	4，通过http方式访问文件
+	5，图片缩略图功能，生成（大中小）三张不同尺寸图片  
+
+
+安装说明
+
+	windows
+	
+	1，安装ImageMagick（ImageMagick-6.3.9-0-Q8-windows-dll.exe），一个高效的图形处理库，系统中用来处理图片的缩放存储，
+	2，安装jmagick，ImageMagick的jni扩展，拷贝jmagick.dll到处c:\windows\system32目录
+	3，安装Static-ServerV1.0.0.0，修改配置文件conf/config.xml, 启动run.bat
+
+
+linux
+
+1，下载安装http://downloads.jmagick.org/6.4.0/ImageMagick-6.4.0-0.tar.gz并安装
+	tar -xvf ImageMagick-6.4.0-0.tar.gz
+	./configure
+	make
+	make install
+	:::修改/etc/profile 文件,增加:
+	   LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+	   export LD_LIBRARY_PATH
+	  
+
+	:::修改/etc/ld.so.conf文件,增加:
+	    /usr/local/lib
+
+2,下载安装http://downloads.jmagick.org/6.4.0/jmagick-6.4.0-src.tar.gz
+	tar -xvf jmagick-6.4.0-src.tar
+	./configure
+	make
+	make install
+
+进入 /usr/local/lib目录,找到libJMagick.so和libJmagick-6.4.2.so两个文件,
+并把它们复制到你Jdk安装目录的 jre/lib/i386文件夹下。这样就完成了对ImageMagick的安装
+
+3，安装Static-ServerV1.0.0.0，修改配置文件conf/config.xml, 启动./startup.sh

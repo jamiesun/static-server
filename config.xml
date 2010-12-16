@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	
+	<!-- 存储配置  -->
+	<entry key="store.path"><![CDATA[statics]]></entry>
+	
+	<!-- tcp服务端口 -->
+	<entry key="tcp.port">8000</entry>
+	
+	<!-- http服务端口 -->
+	<entry key="http.port">9000</entry>
+	
+	<!-- http最大并发连接数 -->
+	<entry key="http.max">10000</entry>
+	
+	<!-- 缓存最大天数 -->
+	<entry key="cache.expireDay">30</entry>
+	
+    <!-- 当前节点名称-->
+	<entry key="node.name">ReplicaNode_0</entry>
+	
+	<!-- 当前节点群组-->
+	<entry key="node.group">RepicaGroup</entry>
+	
+	<!-- 当前节点依赖的源节点，当前节点将从此节点同步数据 ，主节点不需要配置 -->
+	<!-- 格式说明： host:port,host:port... -->
+	<entry key="node.helpers">127.0.0.1:8101</entry>
+	
+</properties>

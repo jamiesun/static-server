@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<project name="statics" default="release" basedir="..">
+
+    <property file="build/build.properties" />
+    <property name="srcdir" value="${basedir}/src"/>
+    <property name="bindir" value="${basedir}/bin"/>
+    <property name="classesdir" value="${basedir}/classes"/>
+    <property name="libdir" value="${basedir}/lib"/>
+    	
+    <property name="releasedir" value="${basedir}/release/statics${version}"/>
+
+
+    <target name="init">
+    	<delete dir="${releasedir}" />
+        <mkdir dir="${releasedir}" />
+    	<mkdir dir="${releasedir}/lib" />
+    	<mkdir dir="${releasedir}/logs" />
+    </target>
+
+    <target name="buildsrc" depends="init">
+        
+        <delete dir="${classesdir}" />
+        <mkdir dir="${classesdir}" />
+        <copydir dest="${classesdir}" src="${srcdir}"/>
+        
+        <!-- blog -->
+        <javac debug="on" deprecation="true" srcdir="${srcdir}" destdir="${classesdir}"
+              source="1.5"  fork="true" encoding="utf-8">
+            <classpath>
+                <pathelement location="${bindir}"/>
+                <fileset dir="${libdir}">
+                    <include name="**/*.jar"/>
+                	<exclude name="jmagick-linux.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+
+        <jar jarfile="${releasedir}/lib/statics.jar"
+            basedir="${classesdir}"
+            compress="true">
+            <manifest>
+                  <attribute name="Version" value="${version}"/>
+            </manifest>
+        </jar>
+        
+    </target>
+
+
+    <target name="release" depends="buildsrc" description="static-server release">
+    	<copy todir="${releasedir}"><fileset dir="${basedir}/bootstrap"/></copy>
+    	<copy todir="${releasedir}/lib">
+    		<fileset dir="${basedir}/lib"
+    		excludes="picocontainer-1.3-sources.jar,xlightweb-2.13.2-sources.jar,xSocket-2.8.14-sources.jar,xSocket-multiplexed-2.1.7-sources.jar"/>
+    	</copy>
+    	<copy file="${basedir}/config.xml" tofile="${releasedir}/config.xml" />
+    	<copy file="${basedir}/log4j.xml" tofile="${releasedir}/log4j.xml" />
+    	<delete dir="${classesdir}"/>
+    </target>
+
+</project>
+

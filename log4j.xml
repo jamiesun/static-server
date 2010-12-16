@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE log4j:configuration PUBLIC "-//ZLAB //DTD Log4j Configuration 1.0.1//EN" "http://www.ly-bns.net/dtd/log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+  <appender name="console.log" class="org.apache.log4j.ConsoleAppender">
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d [%t] %p - %m%n" />
+    </layout>
+  </appender>
+
+<appender name="error.log" class="org.apache.log4j.DailyRollingFileAppender">
+    <param name="File" value="logs/error.log" />
+    <param name="Append" value="true" />
+    <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d [%t] %p - %m%n" />
+    </layout>
+    <filter class="org.apache.log4j.varia.LevelRangeFilter">     
+        <param name="LevelMin" value="WARN" />     
+        <param name="LevelMax" value="FATAL" />     
+    </filter>  
+  </appender>
+
+  <appender name="info.log" class="org.apache.log4j.DailyRollingFileAppender">
+    <param name="File" value="logs/info.log" />
+    <param name="Append" value="true" />
+    <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d [%t] %p - %m%n" />
+    </layout>
+    <filter class="org.apache.log4j.varia.LevelRangeFilter">     
+        <param name="LevelMin" value="DEBUG" />
+        <param name="LevelMax" value="INFO" />
+    </filter>  
+  </appender>
+  
+  <root>
+    <level value="info" />
+    <appender-ref ref="console.log" />
+    <appender-ref ref="error.log" />
+    <appender-ref ref="info.log" />
+  </root>
+
+</log4j:configuration>
