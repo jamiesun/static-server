@@ -25,15 +25,15 @@ public class StoreService implements Startable{
 
     private static final int NODE_PORT_DISPLACEMENT = 100;
     private ReplicatedEnvironment repEnv ;
-	private EntityStore store;
-	private EnvironmentConfig envConfig;
-	private ReplicationConfig repCfg;
-	private StaticAccessor staticAccess;
+    private EntityStore store;
+    private EnvironmentConfig envConfig;
+    private ReplicationConfig repCfg;
+    private StaticAccessor staticAccess;
     private ConfigService configService ;
     private final static Log log = LogFactory.getLog(StoreService.class);
     public void setConfigService(ConfigService configService) {
-		this.configService = configService;
-	}
+        this.configService = configService;
+    }
     public void start() {
         StoreConfig storeConfig = new StoreConfig();
         storeConfig.setAllowCreate(true);
@@ -91,33 +91,33 @@ public class StoreService implements Startable{
         }
 
         staticAccess = new StaticAccessor(store);
-	}
+    }
 
-	public void stop() {
+    public void stop() {
 
-	    log.info("StoreService ready shutdown,sync data....");
-	    store.sync();
-		store.close();
-		repEnv.close();
-		log.info("StoreService has been shutdown");
-		
-	}
+        log.info("StoreService ready shutdown,sync data....");
+        store.sync();
+        store.close();
+        repEnv.close();
+        log.info("StoreService has been shutdown");
+        
+    }
 
-	
-	public StaticAccessor getStaticAccess() {
-		return staticAccess;
-	}
+    
+    public StaticAccessor getStaticAccess() {
+        return staticAccess;
+    }
 
-	
-	public Transaction  beginTransaction(Transaction tn,TransactionConfig cf)
-	{
-		return repEnv.beginTransaction(tn, cf);
-	}
+    
+    public Transaction  beginTransaction(Transaction tn,TransactionConfig cf)
+    {
+        return repEnv.beginTransaction(tn, cf);
+    }
 
-	public Transaction  beginTransaction()
-	{
-		return repEnv.beginTransaction(null,null);
-	}
+    public Transaction  beginTransaction()
+    {
+        return repEnv.beginTransaction(null,null);
+    }
 
 
 

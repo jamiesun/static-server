@@ -80,7 +80,7 @@ public class StaticHandler implements IPipelineDataHandler,IPipelineConnectHandl
             }
             else if((char)opType==IDENTIFIER_GET)
             {
-            	char q = (char) pipeline.readByte();
+                char q = (char) pipeline.readByte();
                 int sidLen = pipeline.readInt();
                 String sid = pipeline.readStringByLength(sidLen);
                 Executor exec = pipeline.getWorkerpool();
@@ -95,15 +95,15 @@ public class StaticHandler implements IPipelineDataHandler,IPipelineConnectHandl
     }
 
     public boolean onConnect(INonBlockingPipeline pipeline) throws IOException,
-    		BufferUnderflowException, MaxReadSizeExceededException {
+            BufferUnderflowException, MaxReadSizeExceededException {
         if(log.isInfoEnabled())
             log.info(pipeline + " connected");
-		return true;
-	}
+        return true;
+    }
 
     public boolean onDisconnect(INonBlockingPipeline pipeline) throws IOException {
-    	if(log.isInfoEnabled())
-    	    log.info(pipeline+" closed");
+        if(log.isInfoEnabled())
+            log.info(pipeline+" closed");
         return true;
     }  
     
@@ -138,9 +138,9 @@ public class StaticHandler implements IPipelineDataHandler,IPipelineConnectHandl
                 remaining -= lengthToRead;
                 
                 if (remaining == 0) {  
-                	StaticObject sto = new StaticObject().unPacker(buffer);
-	                Executor exec = nbc.getWorkerpool();
-	                exec.execute(new StaticAddProcess(nbc,sto));
+                    StaticObject sto = new StaticObject().unPacker(buffer);
+                    Executor exec = nbc.getWorkerpool();
+                    exec.execute(new StaticAddProcess(nbc,sto));
                 }
             }
             catch (Exception e)
@@ -205,21 +205,21 @@ public class StaticHandler implements IPipelineDataHandler,IPipelineConnectHandl
      * 新增文件
      */
     class StaticAddProcess implements Runnable{
-    	private INonBlockingPipeline pipeline;
-    	private StaticObject sto;
-		public StaticAddProcess(INonBlockingPipeline pipeline,StaticObject sto) {
-			this.pipeline =  pipeline;
-			this.sto = sto;
-		}
-		public void run() {
-	        try
-	        {
-	            /**
-	             * 当此节点为非主节点时，不允许写入。
-	             */
-	            if(!storeHARouter.checkMaster())
-	            {
-	                log.error("当前节点不可写入");
+        private INonBlockingPipeline pipeline;
+        private StaticObject sto;
+        public StaticAddProcess(INonBlockingPipeline pipeline,StaticObject sto) {
+            this.pipeline =  pipeline;
+            this.sto = sto;
+        }
+        public void run() {
+            try
+            {
+                /**
+                 * 当此节点为非主节点时，不允许写入。
+                 */
+                if(!storeHARouter.checkMaster())
+                {
+                    log.error("当前节点不可写入");
                     synchronized (pipeline)
                     {
                         pipeline.write(IDENTIFIER_ADD_ACK);
@@ -228,67 +228,67 @@ public class StaticHandler implements IPipelineDataHandler,IPipelineConnectHandl
                         pipeline.close();
                     }
                     return;
-	            }
-	            
-	            StaticAccessor dao = storeService.getStaticAccess();
-	            String sid = sto.getSid();
-	            String type = sto.getType(); 
-	            Map<String, String> meta = new HashMap<String, String>(sto.getMeta());
-	            
-	            String originalId = UUID.randomUUID().toString();
-	            byte[] data = sto.getData();
+                }
+                
+                StaticAccessor dao = storeService.getStaticAccess();
+                String sid = sto.getSid();
+                String type = sto.getType(); 
+                Map<String, String> meta = new HashMap<String, String>(sto.getMeta());
+                
+                String originalId = UUID.randomUUID().toString();
+                byte[] data = sto.getData();
 
-	            String smallId = null;
-	            byte[] smallData = null;
-	            String mediumId = null;
-	            byte[] mediumData = null;
-	            
-	            if(dao.getStaticFile(sid)!=null)
-	            {
-	                log.error("sid("+sid+")已经存在");
-	                synchronized (pipeline)
-	                {
-	                    pipeline.write(IDENTIFIER_ADD_ACK);
-	                    pipeline.write(FAILURE);
-	                    pipeline.flush();
-	                }
-	                return;
-	            }
-	            
-	            try
+                String smallId = null;
+                byte[] smallData = null;
+                String mediumId = null;
+                byte[] mediumData = null;
+                
+                if(dao.getStaticFile(sid)!=null)
                 {
-	                if(type.startsWith("image"))
-	                {        
-	                    //缩略图处理
-	                    ImageInfo info = new ImageInfo();
-	                    MagickImage image = new MagickImage(info,data);
-	                    Dimension dim = image.getDimension();
-	                    int width = dim.width;
-	                    int height = dim.height;
-	                    
-	                   //小图片文件的处理
-	                    if(width>120)
-	                    {
-	                        int sw = 120;
-	                        float rate = width*1.0f / 120;
-	                        int sh = (int) (height*1.0f/rate);
-	                        MagickImage scaleSmall = image.scaleImage(sw, sh);
-	                        smallId = UUID.randomUUID().toString();
-	                        smallData  = scaleSmall.imageToBlob(info);
-	                    }
+                    log.error("sid("+sid+")已经存在");
+                    synchronized (pipeline)
+                    {
+                        pipeline.write(IDENTIFIER_ADD_ACK);
+                        pipeline.write(FAILURE);
+                        pipeline.flush();
+                    }
+                    return;
+                }
+                
+                try
+                {
+                    if(type.startsWith("image"))
+                    {        
+                        //缩略图处理
+                        ImageInfo info = new ImageInfo();
+                        MagickImage image = new MagickImage(info,data);
+                        Dimension dim = image.getDimension();
+                        int width = dim.width;
+                        int height = dim.height;
+                        
+                       //小图片文件的处理
+                        if(width>120)
+                        {
+                            int sw = 120;
+                            float rate = width*1.0f / 120;
+                            int sh = (int) (height*1.0f/rate);
+                            MagickImage scaleSmall = image.scaleImage(sw, sh);
+                            smallId = UUID.randomUUID().toString();
+                            smallData  = scaleSmall.imageToBlob(info);
+                        }
 
-	                    //中图片文件的处理
-	                    if(width>640)
-	                    {
-	                        int mw = 640;
-	                        float rate = width*1.0f / 640;
-	                        int mh = (int) (height*1.0f/rate);
-	                        MagickImage scaleMedium = image.scaleImage(mw, mh);
-	                        mediumId = UUID.randomUUID().toString();
-	                        mediumData = scaleMedium.imageToBlob(info);
-	                    }
+                        //中图片文件的处理
+                        if(width>640)
+                        {
+                            int mw = 640;
+                            float rate = width*1.0f / 640;
+                            int mh = (int) (height*1.0f/rate);
+                            MagickImage scaleMedium = image.scaleImage(mw, mh);
+                            mediumId = UUID.randomUUID().toString();
+                            mediumData = scaleMedium.imageToBlob(info);
+                        }
 
-	                }
+                    }
                 }
                 catch (Exception e)
                 {
@@ -301,17 +301,17 @@ public class StaticHandler implements IPipelineDataHandler,IPipelineConnectHandl
                     }
                     return;
                 }
-	            
-	            StaticFile sf = new StaticFile(sid,type,meta,smallId,mediumId,originalId);
-	            StaticData originalSD = new StaticData(originalId,data);
-	            StaticData smaillSD = null;
-	            StaticData mediumSD = null;
-	            if(smallId!=null)
-	                smaillSD = new StaticData(smallId,smallData);
-	            if(mediumId!=null)
-	                mediumSD = new StaticData(mediumId,mediumData);
+                
+                StaticFile sf = new StaticFile(sid,type,meta,smallId,mediumId,originalId);
+                StaticData originalSD = new StaticData(originalId,data);
+                StaticData smaillSD = null;
+                StaticData mediumSD = null;
+                if(smallId!=null)
+                    smaillSD = new StaticData(smallId,smallData);
+                if(mediumId!=null)
+                    mediumSD = new StaticData(mediumId,mediumData);
 
-	            int ACK = dao.add(sf, originalSD,smaillSD,mediumSD)?SUCCESS:FAILURE;
+                int ACK = dao.add(sf, originalSD,smaillSD,mediumSD)?SUCCESS:FAILURE;
                 if(log.isInfoEnabled())
                     log.info("StaticAddProcess execute:id="+sto.getSid()+";ack="+ACK);
                 
@@ -323,77 +323,77 @@ public class StaticHandler implements IPipelineDataHandler,IPipelineConnectHandl
                 }
 
 
-	        }
-	        catch (Exception e)
-	        {
-	            log.error(sto.getSid()+" addStatic error",e);
-	        }
-		}
+            }
+            catch (Exception e)
+            {
+                log.error(sto.getSid()+" addStatic error",e);
+            }
+        }
     }
     /**
      * 删除文件
      */
     class StaticDelProcess implements Runnable{
-    	private INonBlockingPipeline pipeline;
-    	private String sid;
-		public StaticDelProcess(INonBlockingPipeline pipeline,String  sid) {
-		    this.pipeline =  pipeline;
-			this.sid = sid;
-		}
-		public void run() {
-			
-			try 
-			{
-	            /**
-	             * 当此节点为非主节点时，不允许写入。
-	             */
-	            if(!storeHARouter.checkMaster())
-	            {
-	                log.error("当前节点不可写入");
-	                synchronized (pipeline)
-	                {
-	                    pipeline.write(IDENTIFIER_ADD_ACK);
-	                    pipeline.write(NOT_MASTER);
-	                    pipeline.flush();
-	                    pipeline.close();
-	                }
-	                return;
-	            }
-	            
-	            int ACK = storeService.getStaticAccess().delete(sid)?SUCCESS:FAILURE;
-	            
-	            if(log.isInfoEnabled())
-	                log.info("StaticDelProcess execute:id="+sid+";ack="+ACK);
-	            synchronized (pipeline)
-	            { 
-	                pipeline.write(IDENTIFIER_DEL_ACK);
-	                pipeline.write(ACK);
-	                pipeline.flush();
-	            }
+        private INonBlockingPipeline pipeline;
+        private String sid;
+        public StaticDelProcess(INonBlockingPipeline pipeline,String  sid) {
+            this.pipeline =  pipeline;
+            this.sid = sid;
+        }
+        public void run() {
+            
+            try 
+            {
+                /**
+                 * 当此节点为非主节点时，不允许写入。
+                 */
+                if(!storeHARouter.checkMaster())
+                {
+                    log.error("当前节点不可写入");
+                    synchronized (pipeline)
+                    {
+                        pipeline.write(IDENTIFIER_ADD_ACK);
+                        pipeline.write(NOT_MASTER);
+                        pipeline.flush();
+                        pipeline.close();
+                    }
+                    return;
+                }
+                
+                int ACK = storeService.getStaticAccess().delete(sid)?SUCCESS:FAILURE;
+                
+                if(log.isInfoEnabled())
+                    log.info("StaticDelProcess execute:id="+sid+";ack="+ACK);
+                synchronized (pipeline)
+                { 
+                    pipeline.write(IDENTIFIER_DEL_ACK);
+                    pipeline.write(ACK);
+                    pipeline.flush();
+                }
 
-			}
-			catch (Exception e) 
-			{
-				log.error("StaticDelProcess send resp error",e);
-			}
-		}
+            }
+            catch (Exception e) 
+            {
+                log.error("StaticDelProcess send resp error",e);
+            }
+        }
     }
 
     /**
      * 读取文件
      */
     class StaticGetProcess implements Runnable{
-    	private INonBlockingConnection pipeline;
-    	private String sid;
-    	private char q;
-		public StaticGetProcess(INonBlockingPipeline pipeline,String  sid,char q) {
-		    this.pipeline =  pipeline;
-			this.sid = sid;
-			this.q = q;
-		}
-		public void run() 
-		{
-		    
+        private INonBlockingConnection pipeline;
+        private String sid;
+        private char q;
+        public StaticGetProcess(INonBlockingPipeline pipeline,String  sid,char q) {
+            this.pipeline =  pipeline;
+            this.sid = sid;
+            this.q = q;
+        }
+        public void run() 
+        {
+            
           StaticFile sfile= storeService.getStaticAccess().getStaticFile(sid);
           StaticObject sto = null;
           
@@ -436,8 +436,8 @@ public class StaticHandler implements IPipelineDataHandler,IPipelineConnectHandl
           {
               log.error("StaticGetProcess send resp error",e);
           }
-		}
-    	
+        }
+        
     }
 
 

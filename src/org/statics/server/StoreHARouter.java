@@ -153,7 +153,7 @@ public class StoreHARouter implements Startable,SystemConfig
      */
     private void updateMaster(String newMasterName,InetSocketAddress masterNodeAddress)
     {
-    	if(log.isInfoEnabled())
+        if(log.isInfoEnabled())
             log.info("-当前主节点<MASTER>: " + newMasterName);
         synchronized (masterLock)
         {
@@ -172,13 +172,13 @@ public class StoreHARouter implements Startable,SystemConfig
 
             switch (event.getChangeType()) {
                 case REMOVE:
-                	if(log.isInfoEnabled())
+                    if(log.isInfoEnabled())
                         log.info("-节点( " + nodeName + ")从组中删除");
                     removeActiveNode(nodeName);
                     nodeAddressMapping.remove(nodeName);
                     break;
                 case ADD:
-                	if(log.isInfoEnabled())
+                    if(log.isInfoEnabled())
                         log.info("-节点( " + nodeName + ")加入组");
                     ReplicationNode node = group.getMember(nodeName);
                     nodeAddressMapping.put(nodeName,node.getSocketAddress());
@@ -194,10 +194,10 @@ public class StoreHARouter implements Startable,SystemConfig
      * @param event
      */
     private void addActiveNode(JoinGroupEvent event) {
-    	if(log.isInfoEnabled())
-	        log.info("-节点(" + event.getNodeName()
-	            + ")加入组， 加入时间: "+ event.getJoinTime()
-	            +",当前主节点<MASTER>:"+event.getMasterName());
+        if(log.isInfoEnabled())
+            log.info("-节点(" + event.getNodeName()
+                + ")加入组， 加入时间: "+ event.getJoinTime()
+                +",当前主节点<MASTER>:"+event.getMasterName());
         synchronized (groupLock) {
             InetSocketAddress address = 
                 nodeAddressMapping.get(event.getNodeName());
@@ -215,12 +215,12 @@ public class StoreHARouter implements Startable,SystemConfig
      * @param event
      */
     private void removeActiveNode(LeaveGroupEvent event) {   
-    	if(log.isInfoEnabled())
-	        log.info("-节点("+ event.getNodeName() 
-	            + ")离开组("+event.getLeaveReason()
-	            +"),加入时间:" + event.getJoinTime()
-	            +",离开时间:" + event.getLeaveTime()
-	            +",当前主节点<MASTER>:"+event.getMasterName());
+        if(log.isInfoEnabled())
+            log.info("-节点("+ event.getNodeName() 
+                + ")离开组("+event.getLeaveReason()
+                +"),加入时间:" + event.getJoinTime()
+                +",离开时间:" + event.getLeaveTime()
+                +",当前主节点<MASTER>:"+event.getMasterName());
         synchronized (groupLock) {
             removeActiveNode(event.getNodeName());
         }

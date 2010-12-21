@@ -30,7 +30,7 @@ public class Services
     }
 
     @SuppressWarnings("unchecked")
-	public void registryBean(Class clasz)
+    public void registryBean(Class clasz)
     {
         pico.registerComponentImplementation(clasz);
         log.info("registry [" + clasz.getName() + "] done !");
@@ -54,22 +54,22 @@ public class Services
     
     public void dispose()
     {
-    	pico.dispose();
+        pico.dispose();
     }
 
     @SuppressWarnings("unchecked")
-	public <T> T get(Class<T> clasz)
+    public <T> T get(Class<T> clasz)
     {
         return (T) pico.getComponentInstanceOfType(clasz);
     }
     
-	public static <T> T getBean(Class<T> clasz)
+    public static <T> T getBean(Class<T> clasz)
     {
         return getInstance().get(clasz);
     }
 
     @SuppressWarnings("unchecked")
-	public static void put(Class cs)
+    public static void put(Class cs)
     {
         getInstance().registryBean(cs);
     }

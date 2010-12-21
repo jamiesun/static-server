@@ -8,7 +8,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class XThreadFactory implements ThreadFactory {
     
-	private final static Log log = LogFactory.getLog(XThreadFactory.class);
+    private final static Log log = LogFactory.getLog(XThreadFactory.class);
     private static final AtomicInteger poolNumber = new AtomicInteger(1);
     
     private final AtomicInteger threadNumber = new AtomicInteger(1);
@@ -21,7 +21,7 @@ public class XThreadFactory implements ThreadFactory {
     }
 
     public Thread newThread(Runnable r) {
-    	String name = namePrefix + threadNumber.getAndIncrement();
+        String name = namePrefix + threadNumber.getAndIncrement();
         log.info("creating new thread:"+name);
         Thread t = new Thread(r,name );
         t.setDaemon(isDaemon);

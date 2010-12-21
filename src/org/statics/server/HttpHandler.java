@@ -32,8 +32,8 @@ public class HttpHandler implements IHttpRequestHandler, SystemConfig
         
         if(request.getMethod().equals("POST"))
         {
-        	http.forward(request);
-        	return;
+            http.forward(request);
+            return;
         }
         
         
@@ -54,8 +54,8 @@ public class HttpHandler implements IHttpRequestHandler, SystemConfig
         
         if("favicon.ico".equals(sid))
         {
-        	http.forward(request);
-        	return;
+            http.forward(request);
+            return;
         }
         
         if(Utils.md5Encoder(path).equals(etag))
@@ -65,11 +65,11 @@ public class HttpHandler implements IHttpRequestHandler, SystemConfig
         }
         
         StaticAccessor staticAccess = Services.getBean(StoreService.class).getStaticAccess();
-		StaticFile sfile = staticAccess.getStaticFile(sid);
+        StaticFile sfile = staticAccess.getStaticFile(sid);
         if(sfile==null)
         {
-        	http.sendError(404);
-        	return;
+            http.sendError(404);
+            return;
         }
         
         char q = QUALITY_ORIGINAL;
@@ -81,16 +81,16 @@ public class HttpHandler implements IHttpRequestHandler, SystemConfig
             HttpResponse resp = null;
             byte [] data = null;
             
-        	if(q==QUALITY_SMALL&&sfile.getSmall()!=null)
-        		data = staticAccess.getStaticData(sfile.getSmall()).getData();
-        	else if(q==QUALITY_MEDIUM&&sfile.getMedium()!=null)
-        		data = staticAccess.getStaticData(sfile.getMedium()).getData();
-        	else 
-        		data = staticAccess.getStaticData(sfile.getOriginal()).getData();
+            if(q==QUALITY_SMALL&&sfile.getSmall()!=null)
+                data = staticAccess.getStaticData(sfile.getSmall()).getData();
+            else if(q==QUALITY_MEDIUM&&sfile.getMedium()!=null)
+                data = staticAccess.getStaticData(sfile.getMedium()).getData();
+            else 
+                data = staticAccess.getStaticData(sfile.getOriginal()).getData();
             
-        	resp = new HttpResponse(200,sfile.getType(),data);
-        	resp.setExpireHeaders(expireDay*24*60*60);
-        	resp.setHeader("Etag", Utils.md5Encoder(path));
+            resp = new HttpResponse(200,sfile.getType(),data);
+            resp.setExpireHeaders(expireDay*24*60*60);
+            resp.setHeader("Etag", Utils.md5Encoder(path));
             http.send(resp);
         }
         catch (Exception e)

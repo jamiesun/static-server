@@ -31,28 +31,28 @@ import org.xsocket.connection.multiplexed.MultiplexedConnection;
 
 public class StaticClient implements SystemConfig{
     private NonBlockingConnectionPool cpool;
-	private int timeout;
-	private int limit = 10*1024*1024;
-	private InetSocketAddress masterNode;
-	private List<InetSocketAddress> serverNodes = new ArrayList<InetSocketAddress>();
-	private static final Logger log = Logger.getLogger("StaticClient");
-	
-	public StaticClient(String[] hosts, int timeoutSec, int poolSize) {
-	    //设置客户端连接使用底层直接缓冲读数据
-	    System.setProperty("org.xsocket.connection.client.readbuffer.usedirect", "true");
-	    for (String host : hosts)
+    private int timeout;
+    private int limit = 10*1024*1024;
+    private InetSocketAddress masterNode;
+    private List<InetSocketAddress> serverNodes = new ArrayList<InetSocketAddress>();
+    private static final Logger log = Logger.getLogger("StaticClient");
+    
+    public StaticClient(String[] hosts, int timeoutSec, int poolSize) {
+        //设置客户端连接使用底层直接缓冲读数据
+        System.setProperty("org.xsocket.connection.client.readbuffer.usedirect", "true");
+        for (String host : hosts)
         {
             String[] hp = host.split(":");
             serverNodes.add(new InetSocketAddress(hp[0],Integer.parseInt(hp[1])));
         }
-	    masterNode = serverNodes.get(0);
-		this.timeout = timeoutSec*1000;
-		cpool = new NonBlockingConnectionPool();
-		cpool.setMaxActive(poolSize);
-		cpool.setAcquireTimeoutMillis(5*1000);
-		cpool.setWorkerpool(Executors.newCachedThreadPool(new XThreadFactory(false)));
-		
-		try
+        masterNode = serverNodes.get(0);
+        this.timeout = timeoutSec*1000;
+        cpool = new NonBlockingConnectionPool();
+        cpool.setMaxActive(poolSize);
+        cpool.setAcquireTimeoutMillis(5*1000);
+        cpool.setWorkerpool(Executors.newCachedThreadPool(new XThreadFactory(false)));
+        
+        try
         {
             ConnectionUtils.registerMBean(this.cpool);
         }
@@ -60,15 +60,15 @@ public class StaticClient implements SystemConfig{
         {
             e.printStackTrace();
         }
-	}
+    }
 
     public void close()
     {
-    	try {
-    	    cpool.destroy();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        try {
+            cpool.destroy();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     public synchronized void ping()
@@ -123,21 +123,21 @@ public class StaticClient implements SystemConfig{
             }
         }
     }
-	/**
-	 * 同步新增文件
-	 * @param sid
-	 * @param contentType
-	 * @param metadata
-	 * @param data
-	 * @return
-	 * @throws Exception
-	 */
-	public int add(StaticObject sto) throws Exception
-	{
-	   if(sto.getData().length>limit)
-	   {
-	       throw new Exception("数据大小超过限制，最大("+limit/1024+"KB)");
-	   }
+    /**
+     * 同步新增文件
+     * @param sid
+     * @param contentType
+     * @param metadata
+     * @param data
+     * @return
+     * @throws Exception
+     */
+    public int add(StaticObject sto) throws Exception
+    {
+       if(sto.getData().length>limit)
+       {
+           throw new Exception("数据大小超过限制，最大("+limit/1024+"KB)");
+       }
        INonBlockingConnection nativeCon = cpool.getNonBlockingConnection(masterNode);
        IMultiplexedConnection multiplexedCon = (IMultiplexedConnection) nativeCon.getAttachment();
        if(multiplexedCon==null)
@@ -173,18 +173,18 @@ public class StaticClient implements SystemConfig{
             nativeCon.close();
        }
 
-    		
+            
      }
-	
-	/**
-	 * 异步新增文件
-	 * @param sid
-	 * @param contentType
-	 * @param metadata
-	 * @param data
-	 * @param hdl
-	 * @throws Exception
-	 */
+    
+    /**
+     * 异步新增文件
+     * @param sid
+     * @param contentType
+     * @param metadata
+     * @param data
+     * @param hdl
+     * @throws Exception
+     */
     public void add(final StaticObject sto,final ClientHandler hdl) throws Exception
     {
         if(sto.getData().length>limit)
@@ -241,11 +241,11 @@ public class StaticClient implements SystemConfig{
         controlPipeline.flush();
     }
     
-	   
+       
 
-	public int del(String sid) throws Exception
-	{
-	    INonBlockingConnection nativeCon = cpool.getNonBlockingConnection(masterNode);
+    public int del(String sid) throws Exception
+    {
+        INonBlockingConnection nativeCon = cpool.getNonBlockingConnection(masterNode);
         IMultiplexedConnection multiplexedCon = (IMultiplexedConnection) nativeCon.getAttachment();
         if(multiplexedCon==null)
         {
@@ -256,7 +256,7 @@ public class StaticClient implements SystemConfig{
         IBlockingPipeline controlPipeline = multiplexedCon.getBlockingPipeline(controlPipelineId); 
         controlPipeline.setConnectionTimeoutMillis(timeout);
         if(sid==null||sid.equals(""))
-        	throw new Exception("sid不能为空");
+            throw new Exception("sid不能为空");
        
         controlPipeline.setAutoflush(false);
         controlPipeline.markWritePosition();
@@ -288,18 +288,18 @@ public class StaticClient implements SystemConfig{
             controlPipeline.close();
             nativeCon.close();
         }
-	}
-	
-	/**
-	 * 
-	 * @param sid
-	 * @param quality 质量  O 高 M 中 S 低
-	 * @return
-	 * @throws Exception
-	 */
-	public StaticObject get(String sid,char quality)throws Exception
-	{
-	   INonBlockingConnection nativeCon = cpool.getNonBlockingConnection(masterNode);
+    }
+    
+    /**
+     * 
+     * @param sid
+     * @param quality 质量  O 高 M 中 S 低
+     * @return
+     * @throws Exception
+     */
+    public StaticObject get(String sid,char quality)throws Exception
+    {
+       INonBlockingConnection nativeCon = cpool.getNonBlockingConnection(masterNode);
        IMultiplexedConnection multiplexedCon = (IMultiplexedConnection) nativeCon.getAttachment();
        if(multiplexedCon==null)
        {
@@ -310,7 +310,7 @@ public class StaticClient implements SystemConfig{
         IBlockingPipeline controlPipeline = multiplexedCon.getBlockingPipeline(controlPipelineId); 
         controlPipeline.setConnectionTimeoutMillis(timeout);
         if(sid==null||sid.equals(""))
-        	throw new Exception("sid不能为空");
+            throw new Exception("sid不能为空");
         
         
         controlPipeline.setAutoflush(false);
@@ -351,9 +351,9 @@ public class StaticClient implements SystemConfig{
             controlPipeline.close();
             nativeCon.close();
         }
-	}
+    }
 
-	/**设置大小限制，KB **/
+    /**设置大小限制，KB **/
     public void setLimit(int limitKB)
     {
         this.limit = limitKB*1024;
@@ -363,8 +363,8 @@ public class StaticClient implements SystemConfig{
     {
         return limit/1024;
     }
-	
-	
+    
+    
     public static class XThreadFactory implements ThreadFactory {
         
         private static final AtomicInteger poolNumber = new AtomicInteger(1);
@@ -387,6 +387,6 @@ public class StaticClient implements SystemConfig{
             }
             return t;
         }
-    }	
-	
+    }   
+    
 }
